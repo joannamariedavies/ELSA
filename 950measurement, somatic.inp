@@ -1,0 +1,23 @@
+TITLE:      measurement model somatic;
+DATA:       FILE IS MPlus 950.dat;
+
+VARIABLE:   NAMES ARE id pod hosp age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth
+chpa chpb chpc fampa fampb fampc fripa fripb fripc
+chnd chne chnf famnd famne famnf frind frine frinf;
+
+            USEVARIABLES ARE 
+            grip fvc chair 
+            funct chronic srhealth;
+            MISSING ARE ALL (-999);
+            CATEGORICAL ARE funct chronic srhealth;   
+  
+MODEL:      somatic BY grip fvc chair 
+            funct chronic srhealth;
+            fvc WITH grip;
+
+OUTPUT:     STANDARDIZED SAMPSTAT MODINDICES(ALL) PATTERNS RESIDUAL TECH1 TECH4 TECH5;
+
+Variable: Idvariable = id; 
+Savedata: File = outfileSOMATIC.dat; Save = fscores;

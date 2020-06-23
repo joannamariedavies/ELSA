@@ -1,0 +1,40 @@
+TITLE:      single mediator somatic;
+DATA:       FILE = 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp 
+age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth 
+chpa chpb chpc fampa fampb fampc fripa fripb fripc 
+chnd chne chnf famnd famne famnf frind frine frinf 
+somatic access social;
+
+            USEVARIABLES ARE
+            age sex
+            pod hosp
+            wealth edqual
+            somatic;
+            
+            MISSING ARE ALL (-999);
+            
+            CATEGORICAL ARE 
+            pod hosp;
+
+       
+MODEL:      pod ON age sex wealth edqual somatic;
+
+            hosp ON age sex wealth edqual somatic;
+
+            somatic ON age sex wealth edqual;
+
+            wealth ON edqual;
+
+
+MODEL INDIRECT: pod IND wealth;
+                pod IND edqual;
+                hosp IND wealth;
+                hosp IND edqual;
+
+OUTPUT: STANDARDIZED  
+
+PLOT: TYPE = sensitivity plot2;

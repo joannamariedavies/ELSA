@@ -1,0 +1,21 @@
+TITLE:      measurement model access to services;
+DATA:       FILE IS MPlus 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth
+chpa chpb chpc fampa fampb fampc fripa fripb fripc
+chnd chne chnf famnd famne famnf frind frine frinf;
+
+            USEVARIABLES ARE 
+            gp dentist secdry optici unmetc transp;
+            MISSING ARE ALL (-999);
+            CATEGORICAL ARE gp dentist secdry optici unmetc transp;
+
+MODEL:      access BY gp dentist unmetc secdry optici transp;
+
+OUTPUT:     STANDARDIZED SAMPSTAT MODINDICES(ALL) PATTERNS 
+TECH1 TECH4 TECH5;
+
+Variable: Idvariable = id; 
+Savedata: File = outfileACCESS.dat; Save = fscores;

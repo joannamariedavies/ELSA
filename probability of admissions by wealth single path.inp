@@ -1,0 +1,35 @@
+TITLE:      probability of admission by wealth;
+DATA:       FILE = 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp 
+age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth 
+chpa chpb chpc fampa fampb fampc fripa fripb fripc 
+chnd chne chnf famnd famne famnf frind frine frinf 
+somatic access social;
+
+            USEVARIABLES ARE 
+            age sex
+            wealth edqual
+            hosp;
+            MISSING ARE ALL (-999);
+            CATEGORICAL ARE hosp; 
+
+DEFINE:    CENTER age edqual(GRANDMEAN);
+
+MODEL:      hosp ON age sex wealth (beta2)
+            edqual;
+            [hosp$1] (tau);
+
+
+MODEL CONSTRAINT:
+                LOOP(deciles, 1, 10, 1);
+                PLOT(propens);
+                propens = PHI(-tau+beta2*deciles);
+                !plots estimated probabilities of wealth on the pod
+                !DONT include the interaction effect for this
+
+OUTPUT:     STANDARDIZED 
+
+PLOT:      TYPE = PLOT3;

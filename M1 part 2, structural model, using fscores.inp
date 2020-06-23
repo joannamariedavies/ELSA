@@ -1,0 +1,76 @@
+TITLE:      part 2 main model using imputed data;
+DATA:       FILE = 737IMPlist.dat;
+            TYPE = IMPUTATION;
+
+VARIABLE:   NAMES ARE  age sex
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual;
+
+            USEVARIABLES ARE
+            age
+            sex
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual; 
+            !xz;
+            
+            MISSING ARE ALL (-999);
+            
+            CATEGORICAL ARE 
+            pod hosp;
+
+!DEFINE:    CENTER age edqual somatic access social(GRANDMEAN); 
+           !xz = wealth*age;
+           !center and interaction effect not for final model, but for...
+           !post hoc:
+           !center to explore probabilities 
+           !centre and interaction to explore marginal/moderation effects
+
+MODEL:      pod ON age sex
+            wealth (beta2)
+            edqual somatic access social; 
+            !xz (beta3);
+
+            hosp ON age sex
+            wealth edqual somatic access social;
+
+            somatic ON age sex wealth edqual;
+            access ON age sex wealth edqual somatic;
+            social ON age sex wealth edqual;
+
+            social WITH access;
+
+            wealth ON edqual;
+
+MODEL INDIRECT: pod IND wealth;
+                pod IND edqual;
+                hosp IND wealth;
+                hosp IND edqual;
+
+                access IND wealth;
+                access IND edqual;
+
+                somatic IND edqual;
+                social IND edqual;
+
+                pod IND somatic;
+                hosp IND somatic;
+!MODEL CONSTRAINT:
+
+                !NEW(agevlo agelo age0 agehi agevhi);
+                !agevlo = beta2+beta3*(-26);
+                !agelo = beta2+beta3*(-9.86);
+                !age0 = beta2;
+                !agehi = beta2+beta3*(9.86);
+                !agevhi = beta2+beta3*(19);
+
+
+OUTPUT: STANDARDIZED  SAMPSTAT PATTERNS
+RESIDUAL TECH1 TECH4 TECH5 TECH10;
+
+

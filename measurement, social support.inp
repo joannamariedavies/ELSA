@@ -1,0 +1,40 @@
+TITLE:      measurement model social support;
+DATA:       FILE IS MPlus 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth
+chpa chpb chpc fampa fampb fampc fripa fripb fripc
+chnd chne chnf famnd famne famnf frind frine frinf;
+
+
+            USEVARIABLES ARE 
+            chpa chpb chpc fampa fampb fampc fripa fripb fripc
+chnd chne chnf famnd famne famnf frind frine frinf;
+            MISSING ARE ALL (-999);
+            CATEGORICAL ARE chpa chpb chpc fampa fampb fampc fripa fripb fripc
+chnd chne chnf famnd famne famnf frind frine frinf;
+
+MODEL:      
+chi BY chpa chpb chpc chnd chne chnf;
+fam BY fampa fampb fampc famnd famne famnf;
+fri BY fripa fripb fripc frind frine frinf;
+social BY chi fam fri;
+
+chpa WITH chpb;
+chpa WITH chpc;
+chpb WITH chpc;
+
+fampa WITH fampb;
+fampa WITH fampc;
+fampb WITH fampc;
+
+fripa WITH fripb;
+fripa WITH fripc;
+fripb WITH fripc;
+
+
+OUTPUT:     STANDARDIZED SAMPSTAT MODINDICES(ALL) PATTERNS TECH1 TECH4 TECH5;
+
+Variable: Idvariable = id; 
+Savedata: File = outfileSOCIAL.dat; Save = fscores;

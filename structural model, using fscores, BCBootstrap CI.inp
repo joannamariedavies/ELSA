@@ -1,0 +1,61 @@
+TITLE:      BC bootstrap, main model, non imp;
+DATA:       FILE = 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp 
+age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth 
+chpa chpb chpc fampa fampb fampc fripa fripb fripc 
+chnd chne chnf famnd famne famnf frind frine frinf 
+somatic access social;
+
+            USEVARIABLES ARE
+            sex
+            age
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual;
+            
+            MISSING ARE ALL (-999);
+            
+            CATEGORICAL ARE 
+            pod hosp;
+
+ANALYSIS:   BOOTSTRAP = 5000;
+          
+MODEL:      pod ON age sex
+            wealth edqual somatic access social;
+
+            hosp ON age sex
+            wealth edqual somatic access social;
+
+            somatic ON age sex wealth edqual;
+            access ON age sex wealth edqual somatic;
+            social ON age sex wealth edqual;
+
+            social WITH access;
+
+            wealth ON edqual;
+
+MODEL INDIRECT: pod IND wealth;
+                pod IND edqual;
+                hosp IND wealth;
+                hosp IND edqual;
+
+                access IND wealth;
+                access IND edqual;
+
+                somatic IND edqual;
+                social IND edqual;
+
+                pod IND somatic;
+                hosp IND somatic;
+
+PLOT: TYPE = PLOT2 PLOT3;
+
+OUTPUT: STANDARDIZED  SAMPSTAT PATTERNS
+RESIDUAL TECH1 TECH4 TECH5 TECH10
+CINTERVAL(BCBOOTSTRAP);
+

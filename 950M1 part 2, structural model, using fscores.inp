@@ -1,0 +1,58 @@
+TITLE:      part 2 main model using imputed data;
+DATA:       FILE = 950IMPlist.dat;
+            TYPE = IMPUTATION;
+
+VARIABLE:   NAMES ARE  age sex
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual;
+
+            USEVARIABLES ARE
+            age
+            sex
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual; 
+            
+            MISSING ARE ALL (-999);
+            
+            CATEGORICAL ARE 
+            pod hosp;
+             
+MODEL:      pod ON age sex
+            wealth 
+            edqual somatic access social; 
+
+            hosp ON age sex
+            wealth edqual somatic access social;
+
+            somatic ON age sex wealth edqual;
+            access ON age sex wealth edqual somatic;
+            social ON age sex wealth edqual;
+
+            social WITH access;
+
+            wealth ON edqual;
+
+MODEL INDIRECT: pod IND wealth;
+                pod IND edqual;
+                hosp IND wealth;
+                hosp IND edqual;
+
+                access IND wealth;
+                access IND edqual;
+
+                somatic IND edqual;
+                social IND edqual;
+
+                pod IND somatic;
+                hosp IND somatic;
+
+OUTPUT: STANDARDIZED  SAMPSTAT PATTERNS
+RESIDUAL TECH1 TECH4 TECH5 TECH10;
+
+

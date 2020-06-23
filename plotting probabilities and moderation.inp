@@ -1,0 +1,108 @@
+TITLE:      plotting probabilities and moderation;
+DATA:       FILE = 737.dat;
+
+VARIABLE:   NAMES ARE id pod hosp 
+age sex wealth edqual
+unmetc gp dentist secdry optici transp
+grip fvc chair funct chronic srhealth 
+chpa chpb chpc fampa fampb fampc fripa fripb fripc 
+chnd chne chnf famnd famne famnf frind frine frinf 
+somatic access social;
+
+            USEVARIABLES ARE
+            age
+            sex
+            somatic 
+            access
+            social
+            pod hosp
+            wealth edqual
+            xz;
+            
+            MISSING ARE ALL (-999);
+            
+            CATEGORICAL ARE 
+            pod hosp;
+
+DEFINE:     CENTER age edqual somatic access social (GRANDMEAN);
+            xz = wealth*age;                     
+
+MODEL:      pod ON age (beta)
+            sex
+            wealth (beta2)
+            edqual somatic access social
+            xz (beta3);
+            [pod$1] (tau);
+
+            hosp ON age sex
+            wealth edqual somatic access social;
+
+            somatic ON age (delta)
+            sex 
+            wealth (delta2)
+            edqual
+            xz (delta3);
+            access ON age sex wealth edqual somatic;
+            social ON age sex wealth edqual;
+
+            social WITH access;
+
+            wealth ON edqual;
+
+MODEL INDIRECT: pod IND wealth;
+                pod IND edqual;
+                hosp IND wealth;
+                hosp IND edqual;
+
+                access IND wealth;
+                access IND edqual;
+
+                somatic IND edqual;
+                social IND edqual;
+
+                pod IND somatic;
+                hosp IND somatic;
+
+!MODEL CONSTRAINT:
+                !LOOP(deciles, 1, 10, 1);
+                !PLOT(propens);
+                !propens = PHI(-tau+beta2*deciles);
+                !plots estimated probabilities of wealth on the pod
+                !DONT include the interaction effect for this
+!center age because calculation of probabilities relies on the threshold/...
+!intercept, this changes a lot when you center age because centered its the predicted y score...
+!for the average person of age 77.2 uncentered its for a person aged 0, which does not exist...
+!and therefore does not make sense..
+!also centre the other continuous covariates for interpretation
+                
+               
+                !LOOP(age, -26, 19, 0.1);
+                !PLOT(effect);
+                !effect = beta2+beta3*age;
+                !plots direct effect of wealth on pod moderated by age
+                !shows stronger neg effect at lower ages and none-sig at higher ages
+
+
+                !LOOP(age, -26, 19, 0.1);
+                !PLOT(effect);
+                !effect = delta2+delta3*age;
+                !interaction effect, direct effect on wealth on somatic 
+                !mediated by age
+                !for appendix
+
+                !NEW(agevlo agelo age0 agehi agevhi);
+                !agevlo = beta2+beta3*(-26);
+                !agelo = beta2+beta3*(-9.86);
+                !age0 = beta2;
+                !agehi = beta2+beta3*(9.86);
+                !agevhi = beta2+beta3*(19);
+                !useful for understanding the moderation effects
+
+!PLOT:
+        !TYPE = PLOT3;
+        !plot 3 not available with imputed data!!
+     
+OUTPUT: STANDARDIZED  SAMPSTAT PATTERNS
+RESIDUAL TECH1 TECH4 TECH5 TECH10;
+
+
